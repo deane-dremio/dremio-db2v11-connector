@@ -58,17 +58,27 @@ data_types:
       name: "double"
     required_cast_arguments: "none"
   - source:
+      name: "DECFLOAT"
+      max_precision: 31
+      max_scale: 30
+    required_cast_args: "none"
+    dremio:
+      name: "decimal"
+    required_cast_arguments: "none"
+  - source:
       name: "DECIMAL"
-      max_precision: 38
-      max_scale: 37
+      max_precision: 15
+      max_scale: 14
     required_cast_args: "none"
     dremio:
       name: "decimal"
   - source:
-      name: "DECFLOAT"
+      name: "NUMERIC"
+      max_precision: 15
+      max_scale: 14
+    required_cast_args: "none"
     dremio:
-      name: "float"
-    required_cast_arguments: "none"
+      name: "decimal"
   - source:
       name: "DATE"
     dremio:

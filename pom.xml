@@ -21,12 +21,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.dremio.plugin</groupId>
-  <version>12.0.0</version>
+  <version>22.0.0</version>
   <artifactId>dremio-db2v11-plugin</artifactId>
   <name>Dremio IBM DB2 v11 Community Connector</name>
 
   <properties>
-    <version.dremio>12.0.0-202012212145230282-d8947fd3</version.dremio>
+    <version.dremio>22.0.0-202206221430090603-1fa4049f</version.dremio>
   </properties>
 
   <dependencies>
