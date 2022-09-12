@@ -18,7 +18,7 @@ metadata:
   # Manually Configured Metadata Section.
   name: IBMDB2V11ARP
   apiname: db2v11
-  spec_version: '1.0'
+  spec_version: '2'
 
 syntax:
   # Manually Configured Syntax Section.
@@ -59,9 +59,11 @@ data_types:
     required_cast_arguments: "none"
   - source:
       name: "DECIMAL"
+      max_precision: 38
+      max_scale: 37
+    required_cast_args: "none"
     dremio:
       name: "decimal"
-    required_cast_arguments: "none"
   - source:
       name: "DECFLOAT"
     dremio:

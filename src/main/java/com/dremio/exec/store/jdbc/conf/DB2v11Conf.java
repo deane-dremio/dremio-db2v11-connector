@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2017-2018 Dremio Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.dremio.exec.store.jdbc.conf;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -31,19 +16,20 @@ import com.dremio.exec.store.jdbc.JdbcPluginConfig;
 import com.dremio.exec.store.jdbc.dialect.arp.ArpDialect;
 import com.dremio.exec.store.jdbc.dialect.DB2Dialect;
 import com.google.common.annotations.VisibleForTesting;
-
+import java.util.Properties;
 import io.protostuff.Tag;
 
 /**
- * Configuration for TIBCODataVirtualization sources.
+ * Configuration for IBM DB2 sources.
  */
-@SourceType(value = "IBMDB2V11ARP", label = "IBM DB2 v11")
+@SourceType(value = "IBMDB2V11ARP", label = "IBM DB2 v11", uiConfig = "db2-layout.json", externalQuerySupported = true)
 public class DB2v11Conf extends AbstractArpConf<DB2v11Conf> {
   private static final String ARP_FILENAME = "arp/implementation/db2v11-arp.yaml";
   private static final ArpDialect ARP_DIALECT =
       AbstractArpConf.loadArpFile(ARP_FILENAME, (DB2Dialect::new));
   private static final String DRIVER = "com.ibm.db2.jcc.DB2Driver";
-
+  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DB2v11Conf.class);
+  
   @NotBlank
   @Tag(1)
   @DisplayMetadata(label = "Database Server")
@@ -69,6 +55,27 @@ public class DB2v11Conf extends AbstractArpConf<DB2v11Conf> {
   @Secret
   @DisplayMetadata(label = "Password")
   public String password;
+  
+  @Tag(6)
+  @DisplayMetadata(label = "Record fetch size")
+  @NotMetadataImpacting
+  public int fetchSize = 2000;
+
+  @Tag(7)
+  @DisplayMetadata(label = "Query timeout (s)")
+  @NotMetadataImpacting
+  public int queryTimeout = 10;
+
+
+  @Tag(8)
+  @DisplayMetadata(label = "Maximum idle connections")
+  @NotMetadataImpacting
+  public int maxIdleConns = 8;
+
+  @Tag(9)
+  @DisplayMetadata(label = "Connection idle time (s)")
+  @NotMetadataImpacting
+  public int idleTimeSec = 60;
 
 
   @VisibleForTesting
@@ -85,6 +92,7 @@ public class DB2v11Conf extends AbstractArpConf<DB2v11Conf> {
   @VisibleForTesting
   public JdbcPluginConfig buildPluginConfig(JdbcPluginConfig.Builder configBuilder, CredentialsService credentialsService, OptionManager optionManager) {
          return configBuilder.withDialect(getDialect())
+		.withFetchSize(fetchSize)
         .withDatasourceFactory(this::newDataSource)
         .clearHiddenSchemas()
         //.addHiddenSchema("SYSTEM")
@@ -92,8 +100,9 @@ public class DB2v11Conf extends AbstractArpConf<DB2v11Conf> {
   }
 
   private CloseableDataSource newDataSource() {
+	final Properties properties = new Properties();
     return DataSources.newGenericConnectionPoolDataSource(DRIVER,
-      toJdbcConnectionString(), username, password, null, DataSources.CommitMode.DRIVER_SPECIFIED_COMMIT_MODE);
+      toJdbcConnectionString(), username, password, properties, DataSources.CommitMode.DRIVER_SPECIFIED_COMMIT_MODE, maxIdleConns, idleTimeSec);
   }
 
   @Override
